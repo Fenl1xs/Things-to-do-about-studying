@@ -160,10 +160,10 @@
       gap: 10px;
     }
     .form-subrow {
-      display: flex;
+      display: grid;
+      grid-template-columns: 180px 1fr 1.2fr auto;
       gap: 10px;
       align-items: center;
-      flex-wrap: wrap;
     }
     input, select, button {
       font-size: 0.92rem;
@@ -328,11 +328,10 @@
       font-size: 0.85rem;
       color: #cbd5e1;
     }
-    /* Ссылки и файлы в карточке */
     .links-and-files-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
     .item-chip {
@@ -342,7 +341,7 @@
       background: #0284c722;
       border: 1px solid #0284c766;
       color: var(--accent);
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 6px;
       font-size: 0.82rem;
       text-decoration: none;
@@ -354,13 +353,13 @@
     .btn-add-meta {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       background: transparent;
       border: 1px dashed var(--border);
       color: var(--text-muted);
       padding: 3px 8px;
       border-radius: 6px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       cursor: pointer;
       max-width: fit-content;
     }
@@ -372,11 +371,10 @@
     .chip-del {
       cursor: pointer;
       color: var(--todo);
-      font-size: 0.85rem;
-      margin-left: 4px;
+      font-size: 0.82rem;
+      margin-left: 3px;
       font-weight: bold;
     }
-    /* Общие материалы */
     .shared-item-card {
       background: var(--card-inner);
       border: 1px solid var(--border);
@@ -433,7 +431,7 @@
 
     <div id="cloudStatus" class="status-msg">Подключение к облаку...</div>
 
-    <!-- ВИД 1: РАСПИСАНИЕ ПО НЕДЕЛЯМ -->
+    <!-- РАСПИСАНИЕ ПО НЕДЕЛЯМ -->
     <div id="scheduleViewContainer">
       <form class="form-box" id="newTaskForm">
         <div class="form-row">
@@ -444,20 +442,21 @@
         </div>
 
         <div class="form-subrow">
-          <input type="url" id="taskUrlInput" style="flex: 1; min-width: 200px;" placeholder="Ссылка (напр. https://lms.bmstu.ru/...)">
-          <input type="text" id="commentInput" style="flex: 1.2; min-width: 220px;" placeholder="Заметка / замечание">
+          <input type="text" id="taskLinkTitleInput" placeholder="Название ссылки (напр. LMS / Тест)">
+          <input type="url" id="taskUrlInput" placeholder="Ссылка (https://...)">
+          <input type="text" id="commentInput" placeholder="Заметка / замечание">
           <label class="file-upload-btn">
-            📎 Прикрепить файл
+            📎 Файл
             <input type="file" id="taskFileInput" style="display:none;" onchange="handleNewTaskFile(event)">
           </label>
-          <span id="chosenFileName" style="font-size: 0.82rem; color: var(--accent);"></span>
         </div>
+        <div id="chosenFileName" style="font-size: 0.82rem; color: var(--accent); margin-top: -6px;"></div>
       </form>
 
       <div id="subjectsContainer"></div>
     </div>
 
-    <!-- ВИД 2: ОБЩИЕ МАТЕРИАЛЫ КУРСА -->
+    <!-- ОБЩИЕ МАТЕРИАЛЫ КУРСА -->
     <div id="sharedViewContainer" style="display: none;">
       <form class="form-box" id="newSharedForm">
         <div style="display: grid; grid-template-columns: 220px 1fr auto; gap: 10px;">
@@ -466,14 +465,14 @@
           <button type="submit" class="btn-add">+ Добавить</button>
         </div>
 
-        <div class="form-subrow">
-          <input type="url" id="sharedUrlInput" style="flex: 1;" placeholder="Ссылка (https://...) — оставь пустым, если прикрепляешь файл">
+        <div class="form-subrow" style="grid-template-columns: 1fr auto;">
+          <input type="url" id="sharedUrlInput" placeholder="Ссылка (https://...) — оставь пустым, если прикрепляешь файл">
           <label class="file-upload-btn">
             📎 Прикрепить файл
             <input type="file" id="sharedFileInput" style="display:none;" onchange="handleSharedFile(event)">
           </label>
-          <span id="chosenSharedFileName" style="font-size: 0.82rem; color: var(--accent);"></span>
         </div>
+        <div id="chosenSharedFileName" style="font-size: 0.82rem; color: var(--accent); margin-top: -6px;"></div>
       </form>
 
       <div id="sharedContainer"></div>
@@ -669,22 +668,25 @@
           const card = document.createElement('div');
           card.className = `task-card status-${status}`;
           
-          // Блок ссылок и файлов
-          let linkChip = '';
-          if (task.url) {
-            linkChip = `
+          // Нормализация ссылок (поддержка старого формата одиночного URL и нового массива links)
+          let linksArray = [];
+          if (Array.isArray(task.links)) {
+            linksArray = task.links;
+          } else if (task.url) {
+            linksArray = [{ title: 'Ссылка', url: task.url }];
+          }
+
+          let linksChipsHtml = '';
+          linksArray.forEach((lk, linkIdx) => {
+            linksChipsHtml += `
               <div style="display:inline-flex; align-items:center;">
-                <a href="${task.url}" target="_blank" class="item-chip">
-                  🔗 Перейти
+                <a href="${lk.url}" target="_blank" class="item-chip">
+                  🔗 ${escapeHtml(lk.title || 'Ссылка')}
                 </a>
-                <span class="chip-del" title="Удалить ссылку" onclick="removeTaskUrl(${i})">✕</span>
+                <span class="chip-del" title="Удалить ссылку" onclick="removeTaskLink(${i}, ${linkIdx})">✕</span>
               </div>
             `;
-          } else {
-            linkChip = `
-              <button class="btn-add-meta" onclick="setTaskUrl(${i})">+ 🔗 Ссылка</button>
-            `;
-          }
+          });
 
           let fileChip = '';
           if (task.file) {
@@ -722,7 +724,8 @@
             </div>
 
             <div class="links-and-files-row">
-              ${linkChip}
+              ${linksChipsHtml}
+              <button class="btn-add-meta" onclick="addTaskLinkPrompt(${i})">+ 🔗 Ссылка</button>
               ${fileChip}
             </div>
 
@@ -804,7 +807,7 @@
       }
     }
 
-    // Загрузка файлов
+    // Обработка загрузки файлов
     window.handleNewTaskFile = function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -816,7 +819,7 @@
       const reader = new FileReader();
       reader.onload = (evt) => {
         attachedFileForNewTask = { name: file.name, data: evt.target.result };
-        document.getElementById('chosenFileName').innerText = `✓ ${file.name}`;
+        document.getElementById('chosenFileName').innerText = `✓ Файл прикреплен: ${file.name}`;
       };
       reader.readAsDataURL(file);
     };
@@ -847,19 +850,31 @@
       const reader = new FileReader();
       reader.onload = (evt) => {
         attachedFileForShared = { name: file.name, data: evt.target.result };
-        document.getElementById('chosenSharedFileName').innerText = `✓ ${file.name}`;
+        document.getElementById('chosenSharedFileName').innerText = `✓ Файл прикреплен: ${file.name}`;
       };
       reader.readAsDataURL(file);
     };
 
-    // Создание задачи со ссылкой
+    // Создание новой задачи
     document.getElementById('newTaskForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const targetWeek = parseInt(document.getElementById('weekTargetSelect').value);
       const subject = document.getElementById('subjectSelect').value;
       const title = document.getElementById('titleInput').value.trim();
-      const url = document.getElementById('taskUrlInput').value.trim();
+      const linkTitle = document.getElementById('taskLinkTitleInput').value.trim();
+      let url = document.getElementById('taskUrlInput').value.trim();
       const comment = document.getElementById('commentInput').value.trim();
+
+      const initialLinks = [];
+      if (url) {
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+          url = 'https://' + url;
+        }
+        initialLinks.push({
+          title: linkTitle || 'Ссылка',
+          url: url
+        });
+      }
 
       if (!appState.tasks) appState.tasks = {};
       if (!appState.tasks[targetWeek]) appState.tasks[targetWeek] = [];
@@ -868,12 +883,13 @@
         subject,
         title,
         status: 'todo',
-        url: url || null,
+        links: initialLinks,
         comment: comment,
         file: attachedFileForNewTask || null
       });
 
       document.getElementById('titleInput').value = '';
+      document.getElementById('taskLinkTitleInput').value = '';
       document.getElementById('taskUrlInput').value = '';
       document.getElementById('commentInput').value = '';
       document.getElementById('taskFileInput').value = '';
@@ -883,22 +899,40 @@
       saveToCloud();
     });
 
-    // Добавление ссылки к уже существующей задаче
-    window.setTaskUrl = function(index) {
-      const current = appState.tasks[activeWeek][index].url || '';
-      const res = prompt("Вставьте ссылку для этой задачи (https://...):", current);
-      if (res !== null) {
-        let clean = res.trim();
-        if (clean && !clean.startsWith('http://') && !clean.startsWith('https://')) {
-          clean = 'https://' + clean;
-        }
-        appState.tasks[activeWeek][index].url = clean || null;
-        saveToCloud();
+    // Добавление ссылки к уже существующей задаче (можно сколько угодно раз)
+    window.addTaskLinkPrompt = function(taskIndex) {
+      const name = prompt("Название ссылки (например: LMS Бауманки, Репозиторий, Тест):", "Ссылка");
+      if (name === null) return;
+
+      const urlInput = prompt("Вставьте адрес ссылки (https://...):");
+      if (!urlInput || !urlInput.trim()) return;
+
+      let cleanUrl = urlInput.trim();
+      if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+        cleanUrl = 'https://' + cleanUrl;
       }
+
+      const task = appState.tasks[activeWeek][taskIndex];
+      if (!Array.isArray(task.links)) {
+        task.links = task.url ? [{ title: 'Ссылка', url: task.url }] : [];
+        delete task.url;
+      }
+
+      task.links.push({
+        title: name.trim() || 'Ссылка',
+        url: cleanUrl
+      });
+
+      saveToCloud();
     };
 
-    window.removeTaskUrl = function(index) {
-      delete appState.tasks[activeWeek][index].url;
+    window.removeTaskLink = function(taskIndex, linkIndex) {
+      const task = appState.tasks[activeWeek][taskIndex];
+      if (Array.isArray(task.links)) {
+        task.links.splice(linkIndex, 1);
+      } else {
+        delete task.url;
+      }
       saveToCloud();
     };
 
