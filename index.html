@@ -33,7 +33,6 @@
       overflow-x: hidden;
     }
 
-    /* Сайдбар для ПК и планшетов */
     aside {
       width: 270px;
       background: var(--sidebar);
@@ -58,8 +57,8 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-bottom: 16px;
-      padding-bottom: 14px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
     .tab-btn {
@@ -124,7 +123,7 @@
       border-radius: 6px;
       font-size: 0.82rem;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 8px;
       width: 100%;
     }
     .btn-action:hover {
@@ -132,7 +131,6 @@
       background: #334155;
     }
 
-    /* Основная рабочая область */
     main {
       flex: 1;
       padding: 32px 40px;
@@ -158,12 +156,10 @@
       margin-bottom: 16px;
     }
 
-    /* Мобильная кнопка скрытия/раскрытия (скрыта на ПК) */
     .mobile-toggle-btn {
       display: none;
     }
 
-    /* Форма для ПК и планшетов (всегда открыта) */
     .form-box {
       background: var(--card);
       border: 1px solid var(--border);
@@ -224,7 +220,6 @@
       background: #233554;
     }
 
-    /* Блоки предметов и карточки */
     .subject-block {
       background: var(--card);
       border: 1px solid var(--border);
@@ -416,16 +411,12 @@
       align-items: center;
       gap: 6px;
     }
-    .shared-link:hover {
-      text-decoration: underline;
-    }
     .empty-state {
       text-align: center;
       padding: 40px;
       color: var(--text-muted);
     }
 
-    /* ТОЛЬКО ДЛЯ ТЕЛЕФОНОВ (экраны меньше 860px) */
     @media (max-width: 860px) {
       body {
         flex-direction: column;
@@ -439,7 +430,7 @@
         padding: 12px 14px;
       }
       aside h2 {
-        display: none; /* Убираем заголовок на телефонах */
+        display: none;
       }
       .main-nav-tabs {
         flex-direction: row;
@@ -468,8 +459,6 @@
       main {
         padding: 14px;
       }
-      
-      /* На мобилках форма прячется под кнопку */
       .mobile-toggle-btn {
         display: flex;
         width: 100%;
@@ -541,6 +530,9 @@
     </div>
 
     <button class="btn-action" onclick="manageSubjects()">⚙️ Список предметов</button>
+    <button class="btn-action" onclick="exportDataBackup()">💾 Скачать бэкап</button>
+    <button class="btn-action" onclick="importDataBackup()">📥 Восстановить бэкап</button>
+    <input type="file" id="backupFileInput" style="display:none;" onchange="handleBackupUpload(event)">
   </aside>
 
   <main>
@@ -551,9 +543,8 @@
 
     <div id="cloudStatus" class="status-msg">Подключение к облаку...</div>
 
-    <!-- РАСПИСАНИЕ ПО НЕДЕЛЯМ -->
+    <!-- РАСПИСАНИЕ -->
     <div id="scheduleViewContainer">
-      <!-- Кнопка только для экранов телефонов -->
       <button class="mobile-toggle-btn" onclick="toggleMobileTaskForm()">
         <span id="mobileTaskToggleIcon">+</span> Добавить задание
       </button>
@@ -581,9 +572,8 @@
       <div id="subjectsContainer"></div>
     </div>
 
-    <!-- ОБЩИЕ МАТЕРИАЛЫ КУРСА -->
+    <!-- ОБЩИЕ МАТЕРИАЛЫ -->
     <div id="sharedViewContainer" style="display: none;">
-      <!-- Кнопка только для экранов телефонов -->
       <button class="mobile-toggle-btn" onclick="toggleMobileSharedForm()">
         <span id="mobileSharedToggleIcon">+</span> Добавить материал
       </button>
@@ -630,6 +620,7 @@
     const TOTAL_WEEKS = 17;
     let currentView = 'schedule';
     let activeWeek = 1;
+    let isInitialCloudLoadComplete = false;
 
     let attachedFileForNewTask = null;
     let attachedFileForShared = null;
@@ -651,14 +642,28 @@
       sharedMaterials: []
     };
 
+    try {
+      const localBackup = localStorage.getItem('study_planner_backup');
+      if (localBackup) {
+        const parsed = JSON.parse(localBackup);
+        if (parsed && parsed.subjects) appState = parsed;
+      }
+    } catch (e) {
+      console.warn("Локальный бэкап недоступен:", e);
+    }
+
     onSnapshot(docRef, (docSnap) => {
       document.getElementById('cloudStatus').innerText = "🟢 Облако синхронизировано";
       if (docSnap.exists()) {
-        appState = docSnap.data();
-        if (!appState.sharedMaterials) appState.sharedMaterials = [];
-      } else {
-        saveToCloud();
+        const cloudData = docSnap.data();
+        appState.subjects = cloudData.subjects || appState.subjects;
+        appState.tasks = cloudData.tasks || appState.tasks || {};
+        appState.sharedMaterials = cloudData.sharedMaterials || [];
+        try {
+          localStorage.setItem('study_planner_backup', JSON.stringify(appState));
+        } catch(e){}
       }
+      isInitialCloudLoadComplete = true;
       renderSubjectsDropdowns();
       renderWeeksOptions();
       renderNav();
@@ -670,9 +675,18 @@
 
     async function saveToCloud() {
       try {
-        await setDoc(docRef, appState);
+        localStorage.setItem('study_planner_backup', JSON.stringify(appState));
+      } catch (e) {}
+
+      if (!isInitialCloudLoadComplete) {
+        console.warn("Сохранение отложено: облако ещё не отдало текущие данные.");
+        return;
+      }
+
+      try {
+        await setDoc(docRef, appState, { merge: true });
       } catch (e) {
-        console.error("Ошибка сохранения:", e);
+        console.error("Ошибка сохранения в облако:", e);
       }
     }
 
@@ -744,7 +758,7 @@
       nav.innerHTML = '';
 
       for (let i = 1; i <= TOTAL_WEEKS; i++) {
-        const weekTasks = (appState.tasks && appState.tasks[i]) || [];
+        const weekTasks = (appState.tasks && appState.tasks[String(i)]) || (appState.tasks && appState.tasks[i]) || [];
         const done = weekTasks.filter(t => t.status === 'done' || t.done === true).length;
         const total = weekTasks.length;
 
@@ -770,7 +784,7 @@
       const container = document.getElementById('subjectsContainer');
       container.innerHTML = '';
 
-      const tasks = (appState.tasks && appState.tasks[activeWeek]) || [];
+      const tasks = (appState.tasks && appState.tasks[String(activeWeek)]) || (appState.tasks && appState.tasks[activeWeek]) || [];
       const totalDone = tasks.filter(t => t.status === 'done' || t.done === true).length;
       document.getElementById('viewHeaderStat').innerText = `Сдано: ${totalDone} из ${tasks.length}`;
 
@@ -948,12 +962,11 @@
       }
     }
 
-    // Обработка файлов
     window.handleNewTaskFile = function(e) {
       const file = e.target.files[0];
       if (!file) return;
       if (file.size > 800 * 1024) {
-        alert("Файл больше 800 КБ.");
+        alert("Файл больше 800 КБ. База поддерживает вложения до 800 КБ.");
         e.target.value = '';
         return;
       }
@@ -974,7 +987,9 @@
       }
       const reader = new FileReader();
       reader.onload = (evt) => {
-        appState.tasks[activeWeek][index].file = { name: file.name, data: evt.target.result };
+        const key = String(activeWeek);
+        if (!appState.tasks[key]) appState.tasks[key] = [];
+        appState.tasks[key][index].file = { name: file.name, data: evt.target.result };
         saveToCloud();
       };
       reader.readAsDataURL(file);
@@ -996,10 +1011,9 @@
       reader.readAsDataURL(file);
     };
 
-    // Создание новой задачи
     document.getElementById('newTaskForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const targetWeek = parseInt(document.getElementById('weekTargetSelect').value);
+      const targetWeek = String(document.getElementById('weekTargetSelect').value);
       const subject = document.getElementById('subjectSelect').value;
       const title = document.getElementById('titleInput').value.trim();
       const linkTitle = document.getElementById('taskLinkTitleInput').value.trim();
@@ -1037,7 +1051,6 @@
       document.getElementById('chosenFileName').innerText = '';
       attachedFileForNewTask = null;
 
-      // Если на телефоне, сворачиваем форму обратно
       const form = document.getElementById('newTaskForm');
       if (form.classList.contains('mobile-open')) {
         form.classList.remove('mobile-open');
@@ -1045,6 +1058,8 @@
       }
 
       saveToCloud();
+      renderBlocks();
+      renderNav();
     });
 
     window.addTaskLinkPrompt = function(taskIndex) {
@@ -1059,7 +1074,8 @@
         cleanUrl = 'https://' + cleanUrl;
       }
 
-      const task = appState.tasks[activeWeek][taskIndex];
+      const key = String(activeWeek);
+      const task = appState.tasks[key][taskIndex];
       if (!Array.isArray(task.links)) {
         task.links = task.url ? [{ title: 'Ссылка', url: task.url }] : [];
         delete task.url;
@@ -1071,16 +1087,19 @@
       });
 
       saveToCloud();
+      renderBlocks();
     };
 
     window.removeTaskLink = function(taskIndex, linkIndex) {
-      const task = appState.tasks[activeWeek][taskIndex];
+      const key = String(activeWeek);
+      const task = appState.tasks[key][taskIndex];
       if (Array.isArray(task.links)) {
         task.links.splice(linkIndex, 1);
       } else {
         delete task.url;
       }
       saveToCloud();
+      renderBlocks();
     };
 
     document.getElementById('newSharedForm').addEventListener('submit', (e) => {
@@ -1114,32 +1133,43 @@
       }
 
       saveToCloud();
+      renderSharedMaterials();
     });
 
     window.changeStatus = function(index, newStatus) {
-      appState.tasks[activeWeek][index].status = newStatus;
-      appState.tasks[activeWeek][index].done = (newStatus === 'done');
+      const key = String(activeWeek);
+      appState.tasks[key][index].status = newStatus;
+      appState.tasks[key][index].done = (newStatus === 'done');
       saveToCloud();
+      renderBlocks();
+      renderNav();
     };
 
     window.updateComment = function(index, text) {
-      appState.tasks[activeWeek][index].comment = text.trim();
+      const key = String(activeWeek);
+      appState.tasks[key][index].comment = text.trim();
       saveToCloud();
     };
 
     window.deleteTask = function(index) {
-      appState.tasks[activeWeek].splice(index, 1);
+      const key = String(activeWeek);
+      appState.tasks[key].splice(index, 1);
       saveToCloud();
+      renderBlocks();
+      renderNav();
     };
 
     window.removeTaskFile = function(index) {
-      delete appState.tasks[activeWeek][index].file;
+      const key = String(activeWeek);
+      delete appState.tasks[key][index].file;
       saveToCloud();
+      renderBlocks();
     };
 
     window.deleteSharedItem = function(index) {
       appState.sharedMaterials.splice(index, 1);
       saveToCloud();
+      renderSharedMaterials();
     };
 
     window.manageSubjects = function() {
@@ -1148,7 +1178,48 @@
       if (res !== null) {
         appState.subjects = res.split(',').map(s => s.trim()).filter(Boolean);
         saveToCloud();
+        renderSubjectsDropdowns();
+        renderBlocks();
       }
+    };
+
+    window.exportDataBackup = function() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `study_planner_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    };
+
+    window.importDataBackup = function() {
+      document.getElementById('backupFileInput').click();
+    };
+
+    window.handleBackupUpload = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed && parsed.subjects) {
+            appState = parsed;
+            saveToCloud();
+            renderSubjectsDropdowns();
+            renderWeeksOptions();
+            renderNav();
+            renderCurrentView();
+            alert("Данные успешно восстановлены!");
+          } else {
+            alert("Неверный формат файла бэкапа.");
+          }
+        } catch (err) {
+          alert("Ошибка чтения файла: " + err.message);
+        }
+      };
+      reader.readAsText(file);
     };
 
     function escapeHtml(str) {
