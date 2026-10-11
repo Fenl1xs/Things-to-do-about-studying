@@ -33,12 +33,12 @@
       overflow-x: hidden;
     }
 
-    /* Боковая панель */
+    /* Сайдбар для ПК и планшетов */
     aside {
       width: 270px;
       background: var(--sidebar);
       border-right: 1px solid var(--border);
-      padding: 16px 14px;
+      padding: 20px 14px;
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -48,12 +48,18 @@
       z-index: 50;
       flex-shrink: 0;
     }
+    aside h2 {
+      font-size: 1.05rem;
+      color: var(--accent);
+      margin-bottom: 12px;
+      padding-left: 6px;
+    }
     .main-nav-tabs {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
-      padding-bottom: 12px;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
     .tab-btn {
@@ -61,7 +67,7 @@
       border: 1px solid var(--border);
       color: var(--text);
       padding: 10px 12px;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
       font-size: 0.9rem;
@@ -92,7 +98,7 @@
       justify-content: space-between;
       align-items: center;
       font-weight: 500;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       transition: all 0.15s ease;
     }
     .week-btn:hover {
@@ -107,151 +113,145 @@
     .badge {
       font-size: 0.75rem;
       background: rgba(0, 0, 0, 0.4);
-      padding: 2px 7px;
+      padding: 2px 8px;
       border-radius: 12px;
     }
     .btn-action {
       background: #1e293b;
       color: var(--text-muted);
       border: 1px solid var(--border);
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
       cursor: pointer;
       margin-top: 10px;
       width: 100%;
-      font-weight: 600;
+    }
+    .btn-action:hover {
+      color: var(--text);
+      background: #334155;
     }
 
-    /* Контент */
+    /* Основная рабочая область */
     main {
       flex: 1;
-      padding: 20px 28px;
-      max-width: 960px;
+      padding: 32px 40px;
+      max-width: 980px;
       margin: 0 auto;
       width: 100%;
     }
     header {
-      margin-bottom: 14px;
+      margin-bottom: 24px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
+      padding-bottom: 14px;
       gap: 12px;
     }
     header h1 {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
     }
     .status-msg {
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       color: var(--accent);
-      margin-bottom: 14px;
-    }
-
-    /* Кнопка открытия формы создания */
-    .btn-toggle-form {
-      width: 100%;
-      background: #0284c7;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
       margin-bottom: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
     }
 
-    /* Формы */
+    /* Мобильная кнопка скрытия/раскрытия (скрыта на ПК) */
+    .mobile-toggle-btn {
+      display: none;
+    }
+
+    /* Форма для ПК и планшетов (всегда открыта) */
     .form-box {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .form-box.open {
+      border-radius: 12px;
+      padding: 16px;
       display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
     }
-    .form-grid {
+    .form-row {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 140px 220px 1fr auto;
       gap: 10px;
+    }
+    .form-subrow {
+      display: grid;
+      grid-template-columns: 180px 1fr 1.2fr auto;
+      gap: 10px;
+      align-items: center;
     }
     input, select, button {
-      font-size: 16px;
+      font-size: 0.92rem;
       border-radius: 8px;
       border: 1px solid var(--border);
     }
     input, select {
       background: var(--card-inner);
       color: var(--text);
-      padding: 10px 12px;
+      padding: 9px 12px;
       outline: none;
-      width: 100%;
     }
     input:focus, select:focus {
       border-color: var(--accent);
     }
-    .btn-submit {
+    .btn-add {
       background: var(--accent);
       color: #070d1e;
       border: none;
       font-weight: 700;
-      padding: 12px;
+      padding: 9px 20px;
       cursor: pointer;
-      border-radius: 8px;
     }
     .file-upload-btn {
       background: #1e293b;
       color: var(--accent);
       border: 1px dashed var(--border);
-      padding: 10px 12px;
+      padding: 8px 12px;
       border-radius: 8px;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 6px;
-      width: 100%;
+      white-space: nowrap;
+    }
+    .file-upload-btn:hover {
+      background: #233554;
     }
 
-    /* Блоки предметов */
+    /* Блоки предметов и карточки */
     .subject-block {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 14px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
     }
     .subject-block-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
       border-bottom: 1px solid var(--border);
       padding-bottom: 8px;
       gap: 8px;
     }
     .subject-title {
-      font-size: 1rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: var(--accent);
-      word-break: break-word;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .subject-counter {
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
-      white-space: nowrap;
     }
     .task-items {
       display: flex;
@@ -261,11 +261,12 @@
     .task-card {
       background: var(--card-inner);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 8px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
       gap: 8px;
+      transition: all 0.2s;
     }
     .task-card.status-done {
       opacity: 0.65;
@@ -276,39 +277,36 @@
     }
     .task-main-row {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
+      gap: 12px;
     }
     .task-title {
       flex: 1;
-      font-size: 0.95rem;
+      font-size: 0.98rem;
       font-weight: 500;
-      word-break: break-word;
     }
     .task-card.status-done .task-title {
       text-decoration: line-through;
       color: var(--text-muted);
     }
     .status-group {
-      display: flex;
+      display: inline-flex;
       background: #111e33;
       padding: 3px;
-      border-radius: 8px;
+      border-radius: 6px;
       gap: 3px;
-      width: 100%;
     }
     .status-btn {
-      flex: 1;
       background: transparent;
       border: none;
-      padding: 7px 4px;
-      font-size: 0.8rem;
+      padding: 4px 9px;
+      font-size: 0.78rem;
       font-weight: 600;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       color: var(--text-muted);
-      text-align: center;
+      transition: all 0.15s;
     }
     .status-btn.todo.active {
       background: var(--todo);
@@ -327,9 +325,8 @@
       border: none;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       padding: 2px 6px;
-      line-height: 1;
     }
     .btn-del:hover {
       color: var(--todo);
@@ -339,11 +336,11 @@
       align-items: center;
       gap: 8px;
       background: rgba(0, 0, 0, 0.25);
-      padding: 6px 10px;
-      border-radius: 8px;
+      padding: 4px 8px;
+      border-radius: 6px;
     }
     .comment-row span {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
     }
     .comment-row input {
@@ -351,7 +348,7 @@
       background: transparent;
       border: none;
       padding: 2px 0;
-      font-size: 15px;
+      font-size: 0.85rem;
       color: #cbd5e1;
     }
     .links-and-files-row {
@@ -367,55 +364,68 @@
       background: #0284c722;
       border: 1px solid #0284c766;
       color: var(--accent);
-      padding: 5px 10px;
+      padding: 3px 8px;
       border-radius: 6px;
       font-size: 0.82rem;
       text-decoration: none;
-      word-break: break-all;
+      max-width: fit-content;
+    }
+    .item-chip:hover {
+      background: #0284c744;
     }
     .btn-add-meta {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       background: transparent;
       border: 1px dashed var(--border);
       color: var(--text-muted);
-      padding: 5px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
       font-size: 0.78rem;
       cursor: pointer;
+      max-width: fit-content;
+    }
+    .btn-add-meta:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: #0284c711;
     }
     .chip-del {
       cursor: pointer;
       color: var(--todo);
-      font-size: 0.9rem;
-      margin-left: 4px;
+      font-size: 0.82rem;
+      margin-left: 3px;
       font-weight: bold;
     }
     .shared-item-card {
       background: var(--card-inner);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 8px;
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
     }
     .shared-link {
       color: var(--accent);
       text-decoration: none;
       font-weight: 500;
-      word-break: break-word;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .shared-link:hover {
+      text-decoration: underline;
     }
     .empty-state {
       text-align: center;
-      padding: 30px 10px;
+      padding: 40px;
       color: var(--text-muted);
-      font-size: 0.92rem;
     }
 
-    /* Адаптив для телефонов */
+    /* ТОЛЬКО ДЛЯ ТЕЛЕФОНОВ (экраны меньше 860px) */
     @media (max-width: 860px) {
       body {
         flex-direction: column;
@@ -427,6 +437,9 @@
         border-right: none;
         border-bottom: 1px solid var(--border);
         padding: 12px 14px;
+      }
+      aside h2 {
+        display: none; /* Убираем заголовок на телефонах */
       }
       .main-nav-tabs {
         flex-direction: row;
@@ -455,6 +468,58 @@
       main {
         padding: 14px;
       }
+      
+      /* На мобилках форма прячется под кнопку */
+      .mobile-toggle-btn {
+        display: flex;
+        width: 100%;
+        background: #0284c7;
+        color: #fff;
+        border: none;
+        padding: 11px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        cursor: pointer;
+        margin-bottom: 14px;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+      .form-box {
+        display: none;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 16px;
+      }
+      .form-box.mobile-open {
+        display: flex;
+      }
+      .form-row, .form-subrow {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      input, select, button {
+        font-size: 16px;
+      }
+      .task-main-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .status-group {
+        width: 100%;
+        display: flex;
+      }
+      .status-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 4px;
+      }
+      .btn-del {
+        align-self: flex-end;
+        margin-top: -26px;
+      }
     }
   </style>
 </head>
@@ -466,11 +531,12 @@
         📅 Расписание
       </button>
       <button class="tab-btn" id="tabSharedBtn" onclick="switchView('shared')">
-        📁 Материалы
+        📁 Общие материалы
       </button>
     </div>
 
     <div id="asideWeeksSection">
+      <h2>17 недель</h2>
       <div class="weeks-list" id="weeksNav"></div>
     </div>
 
@@ -485,50 +551,58 @@
 
     <div id="cloudStatus" class="status-msg">Подключение к облаку...</div>
 
-    <!-- Вкладка Расписания -->
+    <!-- РАСПИСАНИЕ ПО НЕДЕЛЯМ -->
     <div id="scheduleViewContainer">
-      <button class="btn-toggle-form" onclick="toggleTaskForm()">
-        <span id="formToggleIcon">+</span> Добавить задание
+      <!-- Кнопка только для экранов телефонов -->
+      <button class="mobile-toggle-btn" onclick="toggleMobileTaskForm()">
+        <span id="mobileTaskToggleIcon">+</span> Добавить задание
       </button>
 
       <form class="form-box" id="newTaskForm">
-        <div class="form-grid">
+        <div class="form-row">
           <select id="weekTargetSelect"></select>
           <select id="subjectSelect" required></select>
           <input type="text" id="titleInput" placeholder="Что нужно сделать (напр. Лаба №1)" required>
+          <button type="submit" class="btn-add">+ Добавить</button>
+        </div>
+
+        <div class="form-subrow">
           <input type="text" id="taskLinkTitleInput" placeholder="Название ссылки (напр. LMS / Тест)">
-          <input type="url" id="taskUrlInput" placeholder="Адрес ссылки (https://...)">
+          <input type="url" id="taskUrlInput" placeholder="Ссылка (https://...)">
           <input type="text" id="commentInput" placeholder="Заметка / замечание">
           <label class="file-upload-btn">
-            📎 Прикрепить файл
+            📎 Файл
             <input type="file" id="taskFileInput" style="display:none;" onchange="handleNewTaskFile(event)">
           </label>
-          <div id="chosenFileName" style="font-size: 0.85rem; color: var(--accent); text-align: center;"></div>
-          <button type="submit" class="btn-submit">Сохранить задание</button>
         </div>
+        <div id="chosenFileName" style="font-size: 0.82rem; color: var(--accent); margin-top: -4px;"></div>
       </form>
 
       <div id="subjectsContainer"></div>
     </div>
 
-    <!-- Вкладка Общих материалов -->
+    <!-- ОБЩИЕ МАТЕРИАЛЫ КУРСА -->
     <div id="sharedViewContainer" style="display: none;">
-      <button class="btn-toggle-form" onclick="toggleSharedForm()">
-        <span id="sharedFormToggleIcon">+</span> Добавить материал
+      <!-- Кнопка только для экранов телефонов -->
+      <button class="mobile-toggle-btn" onclick="toggleMobileSharedForm()">
+        <span id="mobileSharedToggleIcon">+</span> Добавить материал
       </button>
 
       <form class="form-box" id="newSharedForm">
-        <div class="form-grid">
+        <div style="display: grid; grid-template-columns: 220px 1fr auto; gap: 10px;">
           <select id="sharedSubjectSelect" required></select>
           <input type="text" id="sharedTitleInput" placeholder="Название (напр. Яндекс.Диск, Методичка)" required>
-          <input type="url" id="sharedUrlInput" placeholder="Ссылка (https://...)">
+          <button type="submit" class="btn-add">+ Добавить</button>
+        </div>
+
+        <div class="form-subrow" style="grid-template-columns: 1fr auto; margin-top: 6px;">
+          <input type="url" id="sharedUrlInput" placeholder="Ссылка (https://...) — оставь пустым, если прикрепляешь файл">
           <label class="file-upload-btn">
             📎 Прикрепить файл
             <input type="file" id="sharedFileInput" style="display:none;" onchange="handleSharedFile(event)">
           </label>
-          <div id="chosenSharedFileName" style="font-size: 0.85rem; color: var(--accent); text-align: center;"></div>
-          <button type="submit" class="btn-submit">Сохранить материал</button>
         </div>
+        <div id="chosenSharedFileName" style="font-size: 0.82rem; color: var(--accent); margin-top: -4px;"></div>
       </form>
 
       <div id="sharedContainer"></div>
@@ -602,16 +676,16 @@
       }
     }
 
-    window.toggleTaskForm = function() {
+    window.toggleMobileTaskForm = function() {
       const form = document.getElementById('newTaskForm');
-      form.classList.toggle('open');
-      document.getElementById('formToggleIcon').innerText = form.classList.contains('open') ? '✕' : '+';
+      form.classList.toggle('mobile-open');
+      document.getElementById('mobileTaskToggleIcon').innerText = form.classList.contains('mobile-open') ? '✕' : '+';
     };
 
-    window.toggleSharedForm = function() {
+    window.toggleMobileSharedForm = function() {
       const form = document.getElementById('newSharedForm');
-      form.classList.toggle('open');
-      document.getElementById('sharedFormToggleIcon').innerText = form.classList.contains('open') ? '✕' : '+';
+      form.classList.toggle('mobile-open');
+      document.getElementById('mobileSharedToggleIcon').innerText = form.classList.contains('mobile-open') ? '✕' : '+';
     };
 
     window.switchView = function(view) {
@@ -701,7 +775,7 @@
       document.getElementById('viewHeaderStat').innerText = `Сдано: ${totalDone} из ${tasks.length}`;
 
       if (tasks.length === 0) {
-        container.innerHTML = '<div class="empty-state">На эту неделю ещё нет заданий. Нажми «+ Добавить задание» выше!</div>';
+        container.innerHTML = '<div class="empty-state">На эту неделю ещё нет заданий. Добавь первое выше!</div>';
         return;
       }
 
@@ -721,7 +795,7 @@
         block.innerHTML = `
           <div class="subject-block-header">
             <span class="subject-title">📚 ${escapeHtml(subjectName)}</span>
-            <span class="subject-counter">${blockDone}/${items.length}</span>
+            <span class="subject-counter">Сдано: ${blockDone} / ${items.length}</span>
           </div>
           <div class="task-items"></div>
         `;
@@ -777,16 +851,17 @@
           card.innerHTML = `
             <div class="task-main-row">
               <span class="task-title">${escapeHtml(task.title)}</span>
-              <button class="btn-del" title="Удалить задачу" onclick="deleteTask(${i})">✕</button>
-            </div>
+              
+              <div class="status-group">
+                <button class="status-btn todo ${status === 'todo' ? 'active' : ''}" 
+                  onclick="changeStatus(${i}, 'todo')">Не сдано</button>
+                <button class="status-btn in_progress ${status === 'in_progress' ? 'active' : ''}" 
+                  onclick="changeStatus(${i}, 'in_progress')">Доделать</button>
+                <button class="status-btn done ${status === 'done' ? 'active' : ''}" 
+                  onclick="changeStatus(${i}, 'done')">Сдано</button>
+              </div>
 
-            <div class="status-group">
-              <button class="status-btn todo ${status === 'todo' ? 'active' : ''}" 
-                onclick="changeStatus(${i}, 'todo')">Не сдано</button>
-              <button class="status-btn in_progress ${status === 'in_progress' ? 'active' : ''}" 
-                onclick="changeStatus(${i}, 'in_progress')">Доделать</button>
-              <button class="status-btn done ${status === 'done' ? 'active' : ''}" 
-                onclick="changeStatus(${i}, 'done')">Сдано</button>
+              <button class="btn-del" title="Удалить задачу" onclick="deleteTask(${i})">✕</button>
             </div>
 
             <div class="links-and-files-row">
@@ -809,15 +884,15 @@
     }
 
     function renderSharedMaterials() {
-      document.getElementById('viewHeaderTitle').innerText = `Общие материалы`;
+      document.getElementById('viewHeaderTitle').innerText = `Общие материалы курса`;
       const container = document.getElementById('sharedContainer');
       container.innerHTML = '';
 
       const items = appState.sharedMaterials || [];
-      document.getElementById('viewHeaderStat').innerText = `Материалов: ${items.length}`;
+      document.getElementById('viewHeaderStat').innerText = `Всего материалов: ${items.length}`;
 
       if (items.length === 0) {
-        container.innerHTML = '<div class="empty-state">Здесь пока нет файлов. Нажми «+ Добавить материал» выше!</div>';
+        container.innerHTML = '<div class="empty-state">Здесь пока нет общих файлов и ссылок. Добавь первую выше!</div>';
         return;
       }
 
@@ -835,7 +910,7 @@
         block.innerHTML = `
           <div class="subject-block-header">
             <span class="subject-title">📚 ${escapeHtml(subjectName)}</span>
-            <span class="subject-counter">${subItems.length}</span>
+            <span class="subject-counter">Материалов: ${subItems.length}</span>
           </div>
           <div class="task-items"></div>
         `;
@@ -851,10 +926,10 @@
             linkHtml = `<a href="${item.url}" target="_blank" class="shared-link">🔗 ${escapeHtml(item.title)}</a>`;
           } else if (item.file) {
             linkHtml = `
-              <div style="display:flex; align-items:center; gap: 6px;">
+              <div style="display:flex; align-items:center; gap: 8px;">
                 <span style="font-weight: 500;">${escapeHtml(item.title)}</span>
                 <a href="${item.file.data}" download="${item.file.name}" class="item-chip">
-                  📎 Скачать
+                  📎 Скачать (${escapeHtml(item.file.name)})
                 </a>
               </div>
             `;
@@ -962,7 +1037,13 @@
       document.getElementById('chosenFileName').innerText = '';
       attachedFileForNewTask = null;
 
-      toggleTaskForm();
+      // Если на телефоне, сворачиваем форму обратно
+      const form = document.getElementById('newTaskForm');
+      if (form.classList.contains('mobile-open')) {
+        form.classList.remove('mobile-open');
+        document.getElementById('mobileTaskToggleIcon').innerText = '+';
+      }
+
       saveToCloud();
     });
 
@@ -1026,7 +1107,12 @@
       document.getElementById('chosenSharedFileName').innerText = '';
       attachedFileForShared = null;
 
-      toggleSharedForm();
+      const form = document.getElementById('newSharedForm');
+      if (form.classList.contains('mobile-open')) {
+        form.classList.remove('mobile-open');
+        document.getElementById('mobileSharedToggleIcon').innerText = '+';
+      }
+
       saveToCloud();
     });
 
