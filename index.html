@@ -31,7 +31,7 @@
       min-height: 100vh;
     }
     aside {
-      width: 250px;
+      width: 260px;
       background: var(--sidebar);
       border-right: 1px solid var(--border);
       padding: 20px 12px;
@@ -43,28 +43,56 @@
       top: 0;
     }
     aside h2 {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: var(--accent);
       margin-bottom: 12px;
       padding-left: 8px;
     }
-    .weeks-list {
+    .main-nav-tabs {
       display: flex;
       flex-direction: column;
       gap: 6px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      background: #152238;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .weeks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
       flex: 1;
     }
     .week-btn {
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-muted);
-      padding: 9px 12px;
+      padding: 8px 12px;
       border-radius: 8px;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-weight: 500;
+      font-size: 0.88rem;
       transition: all 0.15s ease;
     }
     .week-btn:hover {
@@ -88,9 +116,9 @@
       border: 1px solid var(--border);
       padding: 8px 10px;
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       cursor: pointer;
-      margin-top: 12px;
+      margin-top: 10px;
       width: 100%;
     }
     .btn-action:hover {
@@ -100,7 +128,7 @@
     main {
       flex: 1;
       padding: 32px 40px;
-      max-width: 950px;
+      max-width: 980px;
       margin: 0 auto;
     }
     header {
@@ -116,7 +144,7 @@
       color: var(--accent);
       margin-bottom: 16px;
     }
-    .task-form {
+    .form-box {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -128,7 +156,7 @@
     }
     .form-row {
       display: grid;
-      grid-template-columns: 140px 180px 1fr auto;
+      grid-template-columns: 140px 220px 1fr auto;
       gap: 10px;
     }
     .form-subrow {
@@ -306,7 +334,7 @@
       background: #0284c722;
       border: 1px solid #0284c766;
       color: var(--accent);
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 6px;
       font-size: 0.82rem;
       text-decoration: none;
@@ -315,13 +343,54 @@
     .file-badge:hover {
       background: #0284c744;
     }
+    .btn-add-file-task {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px dashed var(--border);
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      max-width: fit-content;
+    }
+    .btn-add-file-task:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: #0284c711;
+    }
     .file-del-btn {
       cursor: pointer;
       color: var(--todo);
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       margin-left: 4px;
+      font-weight: bold;
     }
-    .empty-week {
+    /* Стили вкладки общих материалов */
+    .shared-item-card {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .shared-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .shared-link:hover {
+      text-decoration: underline;
+    }
+    .empty-state {
       text-align: center;
       padding: 40px;
       color: var(--text-muted);
@@ -331,40 +400,77 @@
 <body>
 
   <aside>
-    <h2>17 недель</h2>
-    <div class="weeks-list" id="weeksNav"></div>
+    <!-- Переключение между расписанием и общими файлами -->
+    <div class="main-nav-tabs">
+      <button class="tab-btn active" id="tabScheduleBtn" onclick="switchView('schedule')">
+        📅 Расписание (17 нед.)
+      </button>
+      <button class="tab-btn" id="tabSharedBtn" onclick="switchView('shared')">
+        📁 Общие материалы
+      </button>
+    </div>
+
+    <div id="asideWeeksSection">
+      <h2>17 недель</h2>
+      <div class="weeks-list" id="weeksNav"></div>
+    </div>
+
     <button class="btn-action" onclick="manageSubjects()">⚙️ Список предметов</button>
   </aside>
 
   <main>
     <header>
-      <h1 id="currentWeekTitle">Неделя 1</h1>
-      <div id="weekProgress" style="color: var(--text-muted);">Сдано: 0 из 0</div>
+      <h1 id="viewHeaderTitle">Неделя 1</h1>
+      <div id="viewHeaderStat" style="color: var(--text-muted);">Сдано: 0 из 0</div>
     </header>
 
     <div id="cloudStatus" class="status-msg">Подключение к облаку...</div>
 
-    <!-- Форма добавления задачи -->
-    <form class="task-form" id="newTaskForm">
-      <div class="form-row">
-        <!-- Выбор конкретной недели -->
-        <select id="weekTargetSelect"></select>
-        <select id="subjectSelect" required></select>
-        <input type="text" id="titleInput" placeholder="Что нужно сделать (напр. Лаба №1)" required>
-        <button type="submit" class="btn-add">+ Добавить</button>
-      </div>
+    <!-- ВИД 1: РАСПИСАНИЕ ПО НЕДЕЛЯМ -->
+    <div id="scheduleViewContainer">
+      <form class="form-box" id="newTaskForm">
+        <div class="form-row">
+          <select id="weekTargetSelect"></select>
+          <select id="subjectSelect" required></select>
+          <input type="text" id="titleInput" placeholder="Что нужно сделать (напр. Лаба №1)" required>
+          <button type="submit" class="btn-add">+ Добавить</button>
+        </div>
 
-      <div class="form-subrow">
-        <input type="text" id="commentInput" style="flex: 1;" placeholder="Заметка / замечание (напр. вариант 3, титульник переделать)">
-        <label class="file-upload-btn">
-          📎 Прикрепить файл
-          <input type="file" id="taskFileInput" style="display:none;" onchange="handleFileSelect(event)">
-        </label>
-        <span id="chosenFileName" style="font-size: 0.82rem; color: var(--accent);"></span>
-      </div>
-    </form>
+        <div class="form-subrow">
+          <input type="text" id="commentInput" style="flex: 1;" placeholder="Заметка / замечание (напр. вариант 3, титульник переделать)">
+          <label class="file-upload-btn">
+            📎 Прикрепить файл
+            <input type="file" id="taskFileInput" style="display:none;" onchange="handleNewTaskFile(event)">
+          </label>
+          <span id="chosenFileName" style="font-size: 0.82rem; color: var(--accent);"></span>
+        </div>
+      </form>
 
-    <div id="subjectsContainer"></div>
+      <div id="subjectsContainer"></div>
+    </div>
+
+    <!-- ВИД 2: ОБЩИЕ МАТЕРИАЛЫ КУРСА -->
+    <div id="sharedViewContainer" style="display: none;">
+      <form class="form-box" id="newSharedForm">
+        <div style="display: grid; grid-template-columns: 220px 1fr auto; gap: 10px;">
+          <select id="sharedSubjectSelect" required></select>
+          <input type="text" id="sharedTitleInput" placeholder="Название (напр. Методичка по лабам, Ссылка на Яндекс.Диск)" required>
+          <button type="submit" class="btn-add">+ Добавить</button>
+        </div>
+
+        <div class="form-subrow">
+          <input type="url" id="sharedUrlInput" style="flex: 1;" placeholder="Ссылка (https://...) — оставь пустым, если прикрепляешь файл ниже">
+          <label class="file-upload-btn">
+            📎 Прикрепить файл
+            <input type="file" id="sharedFileInput" style="display:none;" onchange="handleSharedFile(event)">
+          </label>
+          <span id="chosenSharedFileName" style="font-size: 0.82rem; color: var(--accent);"></span>
+        </div>
+      </form>
+
+      <div id="sharedContainer"></div>
+    </div>
+
   </main>
 
   <script type="module">
@@ -385,25 +491,41 @@
     const docRef = doc(db, "study_planner", "main_data");
 
     const TOTAL_WEEKS = 17;
+    let currentView = 'schedule'; // 'schedule' или 'shared'
     let activeWeek = 1;
-    let attachedFile = null;
+
+    let attachedFileForNewTask = null;
+    let attachedFileForShared = null;
 
     let appState = {
-      subjects: ["Математика", "Физика", "Информатика", "История"],
-      tasks: {}
+      subjects: [
+        "Архитектура автоматизированных систем обработки информации и управления",
+        "Иностранный язык",
+        "Модели данных",
+        "Парадигмы и конструкции языков программирования",
+        "Правоведение",
+        "Теория вероятностей и математическая статистика",
+        "Физика",
+        "Экология",
+        "Элективный курс по физической культуре и спорту",
+        "Электротехника"
+      ],
+      tasks: {},
+      sharedMaterials: []
     };
 
     onSnapshot(docRef, (docSnap) => {
       document.getElementById('cloudStatus').innerText = "🟢 Облако синхронизировано";
       if (docSnap.exists()) {
         appState = docSnap.data();
+        if (!appState.sharedMaterials) appState.sharedMaterials = [];
       } else {
         saveToCloud();
       }
+      renderSubjectsDropdowns();
       renderWeeksOptions();
-      renderSubjectsDropdown();
       renderNav();
-      renderBlocks();
+      renderCurrentView();
     }, (error) => {
       console.error(error);
       document.getElementById('cloudStatus').innerText = "⚠️ Ошибка связи с базой.";
@@ -417,6 +539,46 @@
       }
     }
 
+    // Переключение между вкладками
+    window.switchView = function(view) {
+      currentView = view;
+      document.getElementById('tabScheduleBtn').classList.toggle('active', view === 'schedule');
+      document.getElementById('tabSharedBtn').classList.toggle('active', view === 'shared');
+      
+      document.getElementById('scheduleViewContainer').style.display = view === 'schedule' ? 'block' : 'none';
+      document.getElementById('sharedViewContainer').style.display = view === 'shared' ? 'block' : 'none';
+      document.getElementById('asideWeeksSection').style.display = view === 'schedule' ? 'block' : 'none';
+
+      renderCurrentView();
+    };
+
+    function renderCurrentView() {
+      if (currentView === 'schedule') {
+        renderBlocks();
+      } else {
+        renderSharedMaterials();
+      }
+    }
+
+    function renderSubjectsDropdowns() {
+      const s1 = document.getElementById('subjectSelect');
+      const s2 = document.getElementById('sharedSubjectSelect');
+      s1.innerHTML = '';
+      s2.innerHTML = '';
+
+      (appState.subjects || []).forEach(sub => {
+        const o1 = document.createElement('option');
+        o1.value = sub;
+        o1.innerText = sub;
+        s1.appendChild(o1);
+
+        const o2 = document.createElement('option');
+        o2.value = sub;
+        o2.innerText = sub;
+        s2.appendChild(o2);
+      });
+    }
+
     function renderWeeksOptions() {
       const select = document.getElementById('weekTargetSelect');
       select.innerHTML = '';
@@ -427,17 +589,6 @@
         if (i === activeWeek) opt.selected = true;
         select.appendChild(opt);
       }
-    }
-
-    function renderSubjectsDropdown() {
-      const select = document.getElementById('subjectSelect');
-      select.innerHTML = '';
-      (appState.subjects || []).forEach(sub => {
-        const opt = document.createElement('option');
-        opt.value = sub;
-        opt.innerText = sub;
-        select.appendChild(opt);
-      });
     }
 
     function renderNav() {
@@ -467,20 +618,19 @@
     }
 
     function renderBlocks() {
-      document.getElementById('currentWeekTitle').innerText = `Неделя ${activeWeek}`;
+      document.getElementById('viewHeaderTitle').innerText = `Неделя ${activeWeek}`;
       const container = document.getElementById('subjectsContainer');
       container.innerHTML = '';
 
       const tasks = (appState.tasks && appState.tasks[activeWeek]) || [];
       const totalDone = tasks.filter(t => t.status === 'done' || t.done === true).length;
-      document.getElementById('weekProgress').innerText = `Сдано: ${totalDone} из ${tasks.length}`;
+      document.getElementById('viewHeaderStat').innerText = `Сдано: ${totalDone} из ${tasks.length}`;
 
       if (tasks.length === 0) {
-        container.innerHTML = '<div class="empty-week">На эту неделю ещё нет заданий. Добавь первое сверху!</div>';
+        container.innerHTML = '<div class="empty-state">На эту неделю ещё нет заданий. Добавь первое сверху!</div>';
         return;
       }
 
-      // Группировка по предметам
       const grouped = {};
       tasks.forEach((task, origIndex) => {
         const sub = task.subject || 'Другое';
@@ -499,7 +649,7 @@
             <span class="subject-title">📚 ${escapeHtml(subjectName)}</span>
             <span class="subject-counter">Сдано: ${blockDone} / ${items.length}</span>
           </div>
-          <div class="task-items" id="items-${escapeHtml(subjectName)}"></div>
+          <div class="task-items"></div>
         `;
 
         const itemsContainer = block.querySelector('.task-items');
@@ -512,14 +662,23 @@
           const card = document.createElement('div');
           card.className = `task-card status-${status}`;
           
-          let fileHtml = '';
+          let fileSectionHtml = '';
           if (task.file) {
-            fileHtml = `
-              <div style="display:flex; align-items:center; gap: 6px;">
+            fileSectionHtml = `
+              <div style="display:flex; align-items:center; gap: 8px;">
                 <a href="${task.file.data}" download="${task.file.name}" class="file-badge">
-                  📎 Скачать: ${escapeHtml(task.file.name)}
+                  📎 ${escapeHtml(task.file.name)}
                 </a>
-                <span class="file-del-btn" title="Удалить файл" onclick="removeFile(${i})">✕</span>
+                <span class="file-del-btn" title="Удалить файл" onclick="removeTaskFile(${i})">✕</span>
+              </div>
+            `;
+          } else {
+            fileSectionHtml = `
+              <div>
+                <label class="btn-add-file-task">
+                  + 📎 Добавить файл
+                  <input type="file" style="display:none;" onchange="attachFileToExistingTask(${i}, event)">
+                </label>
               </div>
             `;
           }
@@ -540,7 +699,7 @@
               <button class="btn-del" title="Удалить задачу" onclick="deleteTask(${i})">✕</button>
             </div>
 
-            ${fileHtml}
+            ${fileSectionHtml}
 
             <div class="comment-row">
               <span>💬</span>
@@ -555,30 +714,122 @@
       }
     }
 
-    // Обработка выбора файла в форме
-    window.handleFileSelect = function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+    // Отрисовка общих материалов
+    function renderSharedMaterials() {
+      document.getElementById('viewHeaderTitle').innerText = `Общие материалы курса`;
+      const container = document.getElementById('sharedContainer');
+      container.innerHTML = '';
 
-      // Ограничение ~800KB для Firestore documents (лимит 1MB на весь документ)
-      if (file.size > 800 * 1024) {
-        alert("Файл слишком большой. База данных поддерживает файлы до 800 КБ (методички, задания, docx, легкие pdf).");
-        e.target.value = '';
+      const items = appState.sharedMaterials || [];
+      document.getElementById('viewHeaderStat').innerText = `Всего материалов: ${items.length}`;
+
+      if (items.length === 0) {
+        container.innerHTML = '<div class="empty-state">Здесь пока нет общих файлов и ссылок. Добавь первую сверху!</div>';
         return;
       }
 
+      // Группировка по предметам
+      const grouped = {};
+      items.forEach((item, index) => {
+        const sub = item.subject || 'Общее';
+        if (!grouped[sub]) grouped[sub] = [];
+        grouped[sub].push({ ...item, index });
+      });
+
+      for (const [subjectName, subItems] of Object.entries(grouped)) {
+        const block = document.createElement('div');
+        block.className = 'subject-block';
+
+        block.innerHTML = `
+          <div class="subject-block-header">
+            <span class="subject-title">📚 ${escapeHtml(subjectName)}</span>
+            <span class="subject-counter">Материалов: ${subItems.length}</span>
+          </div>
+          <div class="task-items"></div>
+        `;
+
+        const itemsContainer = block.querySelector('.task-items');
+
+        subItems.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'shared-item-card';
+
+          let linkHtml = '';
+          if (item.url) {
+            linkHtml = `<a href="${item.url}" target="_blank" class="shared-link">🔗 ${escapeHtml(item.title)}</a>`;
+          } else if (item.file) {
+            linkHtml = `
+              <div style="display:flex; align-items:center; gap: 8px;">
+                <span style="font-weight: 500;">${escapeHtml(item.title)}</span>
+                <a href="${item.file.data}" download="${item.file.name}" class="file-badge">
+                  📎 Скачать (${escapeHtml(item.file.name)})
+                </a>
+              </div>
+            `;
+          } else {
+            linkHtml = `<span>${escapeHtml(item.title)}</span>`;
+          }
+
+          card.innerHTML = `
+            <div>${linkHtml}</div>
+            <button class="btn-del" title="Удалить" onclick="deleteSharedItem(${item.index})">✕</button>
+          `;
+          itemsContainer.appendChild(card);
+        });
+
+        container.appendChild(block);
+      }
+    }
+
+    // Обработка файлов
+    window.handleNewTaskFile = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 800 * 1024) {
+        alert("Файл больше 800 КБ.");
+        e.target.value = '';
+        return;
+      }
       const reader = new FileReader();
-      reader.onload = function(evt) {
-        attachedFile = {
-          name: file.name,
-          data: evt.target.result
-        };
+      reader.onload = (evt) => {
+        attachedFileForNewTask = { name: file.name, data: evt.target.result };
         document.getElementById('chosenFileName').innerText = `✓ ${file.name}`;
       };
       reader.readAsDataURL(file);
     };
 
-    // Добавление новой задачи
+    window.attachFileToExistingTask = function(index, e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 800 * 1024) {
+        alert("Файл больше 800 КБ.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        appState.tasks[activeWeek][index].file = { name: file.name, data: evt.target.result };
+        saveToCloud();
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.handleSharedFile = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 800 * 1024) {
+        alert("Файл больше 800 КБ.");
+        e.target.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        attachedFileForShared = { name: file.name, data: evt.target.result };
+        document.getElementById('chosenSharedFileName').innerText = `✓ ${file.name}`;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Добавление задания
     document.getElementById('newTaskForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const targetWeek = parseInt(document.getElementById('weekTargetSelect').value);
@@ -594,14 +845,39 @@
         title,
         status: 'todo',
         comment: comment,
-        file: attachedFile || null
+        file: attachedFileForNewTask || null
       });
 
       document.getElementById('titleInput').value = '';
       document.getElementById('commentInput').value = '';
       document.getElementById('taskFileInput').value = '';
       document.getElementById('chosenFileName').innerText = '';
-      attachedFile = null;
+      attachedFileForNewTask = null;
+
+      saveToCloud();
+    });
+
+    // Добавление общего материала
+    document.getElementById('newSharedForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const subject = document.getElementById('sharedSubjectSelect').value;
+      const title = document.getElementById('sharedTitleInput').value.trim();
+      const url = document.getElementById('sharedUrlInput').value.trim();
+
+      if (!appState.sharedMaterials) appState.sharedMaterials = [];
+
+      appState.sharedMaterials.push({
+        subject,
+        title,
+        url: url || null,
+        file: attachedFileForShared || null
+      });
+
+      document.getElementById('sharedTitleInput').value = '';
+      document.getElementById('sharedUrlInput').value = '';
+      document.getElementById('sharedFileInput').value = '';
+      document.getElementById('chosenSharedFileName').innerText = '';
+      attachedFileForShared = null;
 
       saveToCloud();
     });
@@ -622,8 +898,13 @@
       saveToCloud();
     };
 
-    window.removeFile = function(index) {
+    window.removeTaskFile = function(index) {
       delete appState.tasks[activeWeek][index].file;
+      saveToCloud();
+    };
+
+    window.deleteSharedItem = function(index) {
+      appState.sharedMaterials.splice(index, 1);
       saveToCloud();
     };
 
