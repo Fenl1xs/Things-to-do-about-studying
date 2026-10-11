@@ -6,14 +6,17 @@
   <title>Учебный планер | 17 недель</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --card-border: #334155;
+      --bg: #0b1329;
+      --sidebar: #070d1e;
+      --card: #152238;
+      --card-inner: #0d1726;
+      --border: #233554;
       --accent: #38bdf8;
       --text: #f8fafc;
       --text-muted: #94a3b8;
-      --success: #22c55e;
-      --danger: #ef4444;
+      --todo: #ef4444;
+      --in-prog: #f59e0b;
+      --done: #22c55e;
     }
     * {
       box-sizing: border-box;
@@ -29,8 +32,8 @@
     }
     aside {
       width: 250px;
-      background: #111827;
-      border-right: 1px solid var(--card-border);
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
       padding: 20px 12px;
       display: flex;
       flex-direction: column;
@@ -48,7 +51,7 @@
     .weeks-list {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
       flex: 1;
     }
     .week-btn {
@@ -75,14 +78,14 @@
     }
     .badge {
       font-size: 0.75rem;
-      background: rgba(0, 0, 0, 0.35);
-      padding: 2px 7px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 2px 8px;
       border-radius: 12px;
     }
     .btn-action {
       background: #1e293b;
       color: var(--text-muted);
-      border: 1px solid var(--card-border);
+      border: 1px solid var(--border);
       padding: 8px 10px;
       border-radius: 6px;
       font-size: 0.85rem;
@@ -97,7 +100,7 @@
     main {
       flex: 1;
       padding: 32px 40px;
-      max-width: 900px;
+      max-width: 950px;
       margin: 0 auto;
     }
     header {
@@ -105,28 +108,43 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      border-bottom: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--border);
       padding-bottom: 14px;
+    }
+    .status-msg {
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 16px;
     }
     .task-form {
       background: var(--card);
-      border: 1px solid var(--card-border);
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 16px;
-      display: grid;
-      grid-template-columns: 190px 1fr auto;
+      display: flex;
+      flex-direction: column;
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 140px 180px 1fr auto;
+      gap: 10px;
+    }
+    .form-subrow {
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
     input, select, button {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       border-radius: 8px;
-      border: 1px solid var(--card-border);
+      border: 1px solid var(--border);
     }
     input, select {
-      background: #0f172a;
+      background: var(--card-inner);
       color: var(--text);
-      padding: 10px 12px;
+      padding: 9px 12px;
       outline: none;
     }
     input:focus, select:focus {
@@ -134,67 +152,121 @@
     }
     .btn-add {
       background: var(--accent);
-      color: #0f172a;
+      color: #070d1e;
       border: none;
-      font-weight: 600;
-      padding: 10px 20px;
+      font-weight: 700;
+      padding: 9px 20px;
       cursor: pointer;
     }
-    .task-list {
+    .file-upload-btn {
+      background: #1e293b;
+      color: var(--accent);
+      border: 1px dashed var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .file-upload-btn:hover {
+      background: #233554;
+    }
+    .subject-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .subject-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .subject-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .subject-counter {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .task-items {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
     .task-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      padding: 14px 18px;
-      border-radius: 10px;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .task-card.status-done {
+      opacity: 0.65;
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+    .task-card.status-in_progress {
+      border-color: rgba(245, 158, 11, 0.6);
+    }
+    .task-main-row {
       display: flex;
       align-items: center;
-      gap: 16px;
-    }
-    .task-card.done {
-      background: #1e293b66;
-      opacity: 0.7;
-    }
-    .task-card.done .task-title {
-      text-decoration: line-through;
-      color: var(--text-muted);
-    }
-    .custom-checkbox {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      border: 2px solid var(--card-border);
-      display: grid;
-      place-content: center;
-      cursor: pointer;
-    }
-    .task-card.done .custom-checkbox {
-      background: var(--success);
-      border-color: var(--success);
-    }
-    .custom-checkbox::after {
-      content: "✓";
-      color: #fff;
-      font-size: 13px;
-      display: none;
-      font-weight: 700;
-    }
-    .task-card.done .custom-checkbox::after {
-      display: block;
-    }
-    .subject-tag {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
-      font-size: 0.8rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-weight: 600;
+      justify-content: space-between;
+      gap: 12px;
     }
     .task-title {
       flex: 1;
+      font-size: 0.98rem;
+      font-weight: 500;
+    }
+    .task-card.status-done .task-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+    .status-group {
+      display: inline-flex;
+      background: #111e33;
+      padding: 3px;
+      border-radius: 6px;
+      gap: 3px;
+    }
+    .status-btn {
+      background: transparent;
+      border: none;
+      padding: 4px 9px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .status-btn.todo.active {
+      background: var(--todo);
+      color: #fff;
+    }
+    .status-btn.in_progress.active {
+      background: var(--in-prog);
+      color: #000;
+    }
+    .status-btn.done.active {
+      background: var(--done);
+      color: #fff;
     }
     .btn-del {
       background: transparent;
@@ -202,15 +274,57 @@
       color: var(--text-muted);
       cursor: pointer;
       font-size: 1.1rem;
-      padding: 4px 8px;
+      padding: 2px 6px;
     }
     .btn-del:hover {
-      color: var(--danger);
+      color: var(--todo);
     }
-    .status-msg {
+    .comment-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .comment-row span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .comment-row input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 2px 0;
       font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+    .file-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #0284c722;
+      border: 1px solid #0284c766;
       color: var(--accent);
-      margin-bottom: 12px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      text-decoration: none;
+      max-width: fit-content;
+    }
+    .file-badge:hover {
+      background: #0284c744;
+    }
+    .file-del-btn {
+      cursor: pointer;
+      color: var(--todo);
+      font-size: 0.8rem;
+      margin-left: 4px;
+    }
+    .empty-week {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -228,23 +342,35 @@
       <div id="weekProgress" style="color: var(--text-muted);">Сдано: 0 из 0</div>
     </header>
 
-    <div id="cloudStatus" class="status-msg">Подключение к облачной БД...</div>
+    <div id="cloudStatus" class="status-msg">Подключение к облаку...</div>
 
+    <!-- Форма добавления задачи -->
     <form class="task-form" id="newTaskForm">
-      <select id="subjectSelect" required></select>
-      <input type="text" id="titleInput" placeholder="Что нужно сдать (напр. Лаба №1)" required>
-      <button type="submit" class="btn-add">+ Добавить</button>
+      <div class="form-row">
+        <!-- Выбор конкретной недели -->
+        <select id="weekTargetSelect"></select>
+        <select id="subjectSelect" required></select>
+        <input type="text" id="titleInput" placeholder="Что нужно сделать (напр. Лаба №1)" required>
+        <button type="submit" class="btn-add">+ Добавить</button>
+      </div>
+
+      <div class="form-subrow">
+        <input type="text" id="commentInput" style="flex: 1;" placeholder="Заметка / замечание (напр. вариант 3, титульник переделать)">
+        <label class="file-upload-btn">
+          📎 Прикрепить файл
+          <input type="file" id="taskFileInput" style="display:none;" onchange="handleFileSelect(event)">
+        </label>
+        <span id="chosenFileName" style="font-size: 0.82rem; color: var(--accent);"></span>
+      </div>
     </form>
 
-    <div class="task-list" id="taskList"></div>
+    <div id="subjectsContainer"></div>
   </main>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    // Ваши конфигурационные данные из Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCCUTvU7cawCVyAsFB0nHaY_eUHNAfIF84",
       authDomain: "things-to-do-about-study-6320f.firebaseapp.com",
@@ -260,13 +386,13 @@
 
     const TOTAL_WEEKS = 17;
     let activeWeek = 1;
+    let attachedFile = null;
 
     let appState = {
       subjects: ["Математика", "Физика", "Информатика", "История"],
       tasks: {}
     };
 
-    // Подписка на изменения в базе реального времени
     onSnapshot(docRef, (docSnap) => {
       document.getElementById('cloudStatus').innerText = "🟢 Облако синхронизировано";
       if (docSnap.exists()) {
@@ -274,12 +400,13 @@
       } else {
         saveToCloud();
       }
-      renderSubjects();
+      renderWeeksOptions();
+      renderSubjectsDropdown();
       renderNav();
-      renderTasks();
+      renderBlocks();
     }, (error) => {
       console.error(error);
-      document.getElementById('cloudStatus').innerText = "⚠️ Ошибка синхронизации с базой данных.";
+      document.getElementById('cloudStatus').innerText = "⚠️ Ошибка связи с базой.";
     });
 
     async function saveToCloud() {
@@ -290,7 +417,19 @@
       }
     }
 
-    function renderSubjects() {
+    function renderWeeksOptions() {
+      const select = document.getElementById('weekTargetSelect');
+      select.innerHTML = '';
+      for (let i = 1; i <= TOTAL_WEEKS; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.innerText = `Неделя ${i}`;
+        if (i === activeWeek) opt.selected = true;
+        select.appendChild(opt);
+      }
+    }
+
+    function renderSubjectsDropdown() {
       const select = document.getElementById('subjectSelect');
       select.innerHTML = '';
       (appState.subjects || []).forEach(sub => {
@@ -307,7 +446,7 @@
 
       for (let i = 1; i <= TOTAL_WEEKS; i++) {
         const weekTasks = (appState.tasks && appState.tasks[i]) || [];
-        const done = weekTasks.filter(t => t.done).length;
+        const done = weekTasks.filter(t => t.status === 'done' || t.done === true).length;
         const total = weekTasks.length;
 
         const btn = document.createElement('button');
@@ -315,7 +454,8 @@
         btn.onclick = () => {
           activeWeek = i;
           renderNav();
-          renderTasks();
+          renderBlocks();
+          renderWeeksOptions();
         };
 
         btn.innerHTML = `
@@ -326,48 +466,154 @@
       }
     }
 
-    function renderTasks() {
+    function renderBlocks() {
       document.getElementById('currentWeekTitle').innerText = `Неделя ${activeWeek}`;
-      const listEl = document.getElementById('taskList');
-      listEl.innerHTML = '';
+      const container = document.getElementById('subjectsContainer');
+      container.innerHTML = '';
 
       const tasks = (appState.tasks && appState.tasks[activeWeek]) || [];
-      const done = tasks.filter(t => t.done).length;
-      document.getElementById('weekProgress').innerText = `Сдано: ${done} из ${tasks.length}`;
+      const totalDone = tasks.filter(t => t.status === 'done' || t.done === true).length;
+      document.getElementById('weekProgress').innerText = `Сдано: ${totalDone} из ${tasks.length}`;
 
       if (tasks.length === 0) {
-        listEl.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">На эту неделю пока нет задач.</div>';
+        container.innerHTML = '<div class="empty-week">На эту неделю ещё нет заданий. Добавь первое сверху!</div>';
         return;
       }
 
-      tasks.forEach((task, index) => {
-        const card = document.createElement('div');
-        card.className = `task-card ${task.done ? 'done' : ''}`;
-        card.innerHTML = `
-          <div class="custom-checkbox" onclick="toggleTask(${index})"></div>
-          <span class="subject-tag">${escapeHtml(task.subject)}</span>
-          <span class="task-title">${escapeHtml(task.title)}</span>
-          <button class="btn-del" onclick="deleteTask(${index})">✕</button>
-        `;
-        listEl.appendChild(card);
+      // Группировка по предметам
+      const grouped = {};
+      tasks.forEach((task, origIndex) => {
+        const sub = task.subject || 'Другое';
+        if (!grouped[sub]) grouped[sub] = [];
+        grouped[sub].push({ ...task, origIndex });
       });
+
+      for (const [subjectName, items] of Object.entries(grouped)) {
+        const block = document.createElement('div');
+        block.className = 'subject-block';
+
+        const blockDone = items.filter(t => t.status === 'done' || t.done === true).length;
+
+        block.innerHTML = `
+          <div class="subject-block-header">
+            <span class="subject-title">📚 ${escapeHtml(subjectName)}</span>
+            <span class="subject-counter">Сдано: ${blockDone} / ${items.length}</span>
+          </div>
+          <div class="task-items" id="items-${escapeHtml(subjectName)}"></div>
+        `;
+
+        const itemsContainer = block.querySelector('.task-items');
+
+        items.forEach(task => {
+          const status = task.status || (task.done ? 'done' : 'todo');
+          const comment = task.comment || '';
+          const i = task.origIndex;
+
+          const card = document.createElement('div');
+          card.className = `task-card status-${status}`;
+          
+          let fileHtml = '';
+          if (task.file) {
+            fileHtml = `
+              <div style="display:flex; align-items:center; gap: 6px;">
+                <a href="${task.file.data}" download="${task.file.name}" class="file-badge">
+                  📎 Скачать: ${escapeHtml(task.file.name)}
+                </a>
+                <span class="file-del-btn" title="Удалить файл" onclick="removeFile(${i})">✕</span>
+              </div>
+            `;
+          }
+
+          card.innerHTML = `
+            <div class="task-main-row">
+              <span class="task-title">${escapeHtml(task.title)}</span>
+              
+              <div class="status-group">
+                <button class="status-btn todo ${status === 'todo' ? 'active' : ''}" 
+                  onclick="changeStatus(${i}, 'todo')">Не сделано</button>
+                <button class="status-btn in_progress ${status === 'in_progress' ? 'active' : ''}" 
+                  onclick="changeStatus(${i}, 'in_progress')">Доделать</button>
+                <button class="status-btn done ${status === 'done' ? 'active' : ''}" 
+                  onclick="changeStatus(${i}, 'done')">Сдано</button>
+              </div>
+
+              <button class="btn-del" title="Удалить задачу" onclick="deleteTask(${i})">✕</button>
+            </div>
+
+            ${fileHtml}
+
+            <div class="comment-row">
+              <span>💬</span>
+              <input type="text" value="${escapeHtml(comment)}" placeholder="Нажми, чтобы написать заметку..." 
+                onchange="updateComment(${i}, this.value)" />
+            </div>
+          `;
+          itemsContainer.appendChild(card);
+        });
+
+        container.appendChild(block);
+      }
     }
 
+    // Обработка выбора файла в форме
+    window.handleFileSelect = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Ограничение ~800KB для Firestore documents (лимит 1MB на весь документ)
+      if (file.size > 800 * 1024) {
+        alert("Файл слишком большой. База данных поддерживает файлы до 800 КБ (методички, задания, docx, легкие pdf).");
+        e.target.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        attachedFile = {
+          name: file.name,
+          data: evt.target.result
+        };
+        document.getElementById('chosenFileName').innerText = `✓ ${file.name}`;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Добавление новой задачи
     document.getElementById('newTaskForm').addEventListener('submit', (e) => {
       e.preventDefault();
+      const targetWeek = parseInt(document.getElementById('weekTargetSelect').value);
       const subject = document.getElementById('subjectSelect').value;
       const title = document.getElementById('titleInput').value.trim();
+      const comment = document.getElementById('commentInput').value.trim();
 
       if (!appState.tasks) appState.tasks = {};
-      if (!appState.tasks[activeWeek]) appState.tasks[activeWeek] = [];
+      if (!appState.tasks[targetWeek]) appState.tasks[targetWeek] = [];
 
-      appState.tasks[activeWeek].push({ subject, title, done: false });
+      appState.tasks[targetWeek].push({
+        subject,
+        title,
+        status: 'todo',
+        comment: comment,
+        file: attachedFile || null
+      });
+
       document.getElementById('titleInput').value = '';
+      document.getElementById('commentInput').value = '';
+      document.getElementById('taskFileInput').value = '';
+      document.getElementById('chosenFileName').innerText = '';
+      attachedFile = null;
+
       saveToCloud();
     });
 
-    window.toggleTask = function(index) {
-      appState.tasks[activeWeek][index].done = !appState.tasks[activeWeek][index].done;
+    window.changeStatus = function(index, newStatus) {
+      appState.tasks[activeWeek][index].status = newStatus;
+      appState.tasks[activeWeek][index].done = (newStatus === 'done');
+      saveToCloud();
+    };
+
+    window.updateComment = function(index, text) {
+      appState.tasks[activeWeek][index].comment = text.trim();
       saveToCloud();
     };
 
@@ -376,9 +622,14 @@
       saveToCloud();
     };
 
+    window.removeFile = function(index) {
+      delete appState.tasks[activeWeek][index].file;
+      saveToCloud();
+    };
+
     window.manageSubjects = function() {
       const current = (appState.subjects || []).join(', ');
-      const res = prompt("Список ваших предметов через запятую:", current);
+      const res = prompt("Список предметов через запятую:", current);
       if (res !== null) {
         appState.subjects = res.split(',').map(s => s.trim()).filter(Boolean);
         saveToCloud();
@@ -386,7 +637,7 @@
     };
 
     function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
   </script>
 </body>
