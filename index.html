@@ -163,6 +163,7 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      flex-wrap: wrap;
     }
     input, select, button {
       font-size: 0.92rem;
@@ -327,7 +328,14 @@
       font-size: 0.85rem;
       color: #cbd5e1;
     }
-    .file-badge {
+    /* Ссылки и файлы в карточке */
+    .links-and-files-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .item-chip {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -340,10 +348,10 @@
       text-decoration: none;
       max-width: fit-content;
     }
-    .file-badge:hover {
+    .item-chip:hover {
       background: #0284c744;
     }
-    .btn-add-file-task {
+    .btn-add-meta {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -356,19 +364,19 @@
       cursor: pointer;
       max-width: fit-content;
     }
-    .btn-add-file-task:hover {
+    .btn-add-meta:hover {
       color: var(--accent);
       border-color: var(--accent);
       background: #0284c711;
     }
-    .file-del-btn {
+    .chip-del {
       cursor: pointer;
       color: var(--todo);
       font-size: 0.85rem;
       margin-left: 4px;
       font-weight: bold;
     }
-    /* Стили вкладки общих материалов */
+    /* Общие материалы */
     .shared-item-card {
       background: var(--card-inner);
       border: 1px solid var(--border);
@@ -400,7 +408,6 @@
 <body>
 
   <aside>
-    <!-- Переключение между расписанием и общими файлами -->
     <div class="main-nav-tabs">
       <button class="tab-btn active" id="tabScheduleBtn" onclick="switchView('schedule')">
         📅 Расписание (17 нед.)
@@ -437,7 +444,8 @@
         </div>
 
         <div class="form-subrow">
-          <input type="text" id="commentInput" style="flex: 1;" placeholder="Заметка / замечание (напр. вариант 3, титульник переделать)">
+          <input type="url" id="taskUrlInput" style="flex: 1; min-width: 200px;" placeholder="Ссылка (напр. https://lms.bmstu.ru/...)">
+          <input type="text" id="commentInput" style="flex: 1.2; min-width: 220px;" placeholder="Заметка / замечание">
           <label class="file-upload-btn">
             📎 Прикрепить файл
             <input type="file" id="taskFileInput" style="display:none;" onchange="handleNewTaskFile(event)">
@@ -454,12 +462,12 @@
       <form class="form-box" id="newSharedForm">
         <div style="display: grid; grid-template-columns: 220px 1fr auto; gap: 10px;">
           <select id="sharedSubjectSelect" required></select>
-          <input type="text" id="sharedTitleInput" placeholder="Название (напр. Методичка по лабам, Ссылка на Яндекс.Диск)" required>
+          <input type="text" id="sharedTitleInput" placeholder="Название (напр. Яндекс.Диск, Методичка)" required>
           <button type="submit" class="btn-add">+ Добавить</button>
         </div>
 
         <div class="form-subrow">
-          <input type="url" id="sharedUrlInput" style="flex: 1;" placeholder="Ссылка (https://...) — оставь пустым, если прикрепляешь файл ниже">
+          <input type="url" id="sharedUrlInput" style="flex: 1;" placeholder="Ссылка (https://...) — оставь пустым, если прикрепляешь файл">
           <label class="file-upload-btn">
             📎 Прикрепить файл
             <input type="file" id="sharedFileInput" style="display:none;" onchange="handleSharedFile(event)">
@@ -491,7 +499,7 @@
     const docRef = doc(db, "study_planner", "main_data");
 
     const TOTAL_WEEKS = 17;
-    let currentView = 'schedule'; // 'schedule' или 'shared'
+    let currentView = 'schedule';
     let activeWeek = 1;
 
     let attachedFileForNewTask = null;
@@ -539,7 +547,6 @@
       }
     }
 
-    // Переключение между вкладками
     window.switchView = function(view) {
       currentView = view;
       document.getElementById('tabScheduleBtn').classList.toggle('active', view === 'schedule');
@@ -662,24 +669,39 @@
           const card = document.createElement('div');
           card.className = `task-card status-${status}`;
           
-          let fileSectionHtml = '';
-          if (task.file) {
-            fileSectionHtml = `
-              <div style="display:flex; align-items:center; gap: 8px;">
-                <a href="${task.file.data}" download="${task.file.name}" class="file-badge">
-                  📎 ${escapeHtml(task.file.name)}
+          // Блок ссылок и файлов
+          let linkChip = '';
+          if (task.url) {
+            linkChip = `
+              <div style="display:inline-flex; align-items:center;">
+                <a href="${task.url}" target="_blank" class="item-chip">
+                  🔗 Перейти
                 </a>
-                <span class="file-del-btn" title="Удалить файл" onclick="removeTaskFile(${i})">✕</span>
+                <span class="chip-del" title="Удалить ссылку" onclick="removeTaskUrl(${i})">✕</span>
               </div>
             `;
           } else {
-            fileSectionHtml = `
-              <div>
-                <label class="btn-add-file-task">
-                  + 📎 Добавить файл
-                  <input type="file" style="display:none;" onchange="attachFileToExistingTask(${i}, event)">
-                </label>
+            linkChip = `
+              <button class="btn-add-meta" onclick="setTaskUrl(${i})">+ 🔗 Ссылка</button>
+            `;
+          }
+
+          let fileChip = '';
+          if (task.file) {
+            fileChip = `
+              <div style="display:inline-flex; align-items:center;">
+                <a href="${task.file.data}" download="${task.file.name}" class="item-chip">
+                  📎 ${escapeHtml(task.file.name)}
+                </a>
+                <span class="chip-del" title="Удалить файл" onclick="removeTaskFile(${i})">✕</span>
               </div>
+            `;
+          } else {
+            fileChip = `
+              <label class="btn-add-meta">
+                + 📎 Файл
+                <input type="file" style="display:none;" onchange="attachFileToExistingTask(${i}, event)">
+              </label>
             `;
           }
 
@@ -699,7 +721,10 @@
               <button class="btn-del" title="Удалить задачу" onclick="deleteTask(${i})">✕</button>
             </div>
 
-            ${fileSectionHtml}
+            <div class="links-and-files-row">
+              ${linkChip}
+              ${fileChip}
+            </div>
 
             <div class="comment-row">
               <span>💬</span>
@@ -714,7 +739,6 @@
       }
     }
 
-    // Отрисовка общих материалов
     function renderSharedMaterials() {
       document.getElementById('viewHeaderTitle').innerText = `Общие материалы курса`;
       const container = document.getElementById('sharedContainer');
@@ -728,7 +752,6 @@
         return;
       }
 
-      // Группировка по предметам
       const grouped = {};
       items.forEach((item, index) => {
         const sub = item.subject || 'Общее';
@@ -761,7 +784,7 @@
             linkHtml = `
               <div style="display:flex; align-items:center; gap: 8px;">
                 <span style="font-weight: 500;">${escapeHtml(item.title)}</span>
-                <a href="${item.file.data}" download="${item.file.name}" class="file-badge">
+                <a href="${item.file.data}" download="${item.file.name}" class="item-chip">
                   📎 Скачать (${escapeHtml(item.file.name)})
                 </a>
               </div>
@@ -781,7 +804,7 @@
       }
     }
 
-    // Обработка файлов
+    // Загрузка файлов
     window.handleNewTaskFile = function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -829,12 +852,13 @@
       reader.readAsDataURL(file);
     };
 
-    // Добавление задания
+    // Создание задачи со ссылкой
     document.getElementById('newTaskForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const targetWeek = parseInt(document.getElementById('weekTargetSelect').value);
       const subject = document.getElementById('subjectSelect').value;
       const title = document.getElementById('titleInput').value.trim();
+      const url = document.getElementById('taskUrlInput').value.trim();
       const comment = document.getElementById('commentInput').value.trim();
 
       if (!appState.tasks) appState.tasks = {};
@@ -844,11 +868,13 @@
         subject,
         title,
         status: 'todo',
+        url: url || null,
         comment: comment,
         file: attachedFileForNewTask || null
       });
 
       document.getElementById('titleInput').value = '';
+      document.getElementById('taskUrlInput').value = '';
       document.getElementById('commentInput').value = '';
       document.getElementById('taskFileInput').value = '';
       document.getElementById('chosenFileName').innerText = '';
@@ -857,12 +883,34 @@
       saveToCloud();
     });
 
-    // Добавление общего материала
+    // Добавление ссылки к уже существующей задаче
+    window.setTaskUrl = function(index) {
+      const current = appState.tasks[activeWeek][index].url || '';
+      const res = prompt("Вставьте ссылку для этой задачи (https://...):", current);
+      if (res !== null) {
+        let clean = res.trim();
+        if (clean && !clean.startsWith('http://') && !clean.startsWith('https://')) {
+          clean = 'https://' + clean;
+        }
+        appState.tasks[activeWeek][index].url = clean || null;
+        saveToCloud();
+      }
+    };
+
+    window.removeTaskUrl = function(index) {
+      delete appState.tasks[activeWeek][index].url;
+      saveToCloud();
+    };
+
+    // Общие материалы
     document.getElementById('newSharedForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const subject = document.getElementById('sharedSubjectSelect').value;
       const title = document.getElementById('sharedTitleInput').value.trim();
-      const url = document.getElementById('sharedUrlInput').value.trim();
+      let url = document.getElementById('sharedUrlInput').value.trim();
+      if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
 
       if (!appState.sharedMaterials) appState.sharedMaterials = [];
 
